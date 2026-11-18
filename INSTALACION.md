@@ -6,6 +6,10 @@ Las tres últimas clases usan un modelo de IA que corre en su propio equipo, gra
 datos a nadie. Hágalo en casa: la descarga de los modelos tarda (de 3 a 10 GB) y en clase no hay
 tiempo. Toma unos 30 minutos, casi todos esperando la descarga.
 
+Si prefiere ir paso a paso, con lo que debe ver en cada comando y qué hacer si algo falla, use
+el manual en PDF para Windows, macOS y Linux: [`Instalar-IA-del-curso.pdf`](Instalar-IA-del-curso.pdf).
+Incluye también Tesseract, que se usa en la clase 3.
+
 **1. Vea cuánta memoria tiene su equipo.**
 
 | Sistema | Cómo verla |
