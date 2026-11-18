@@ -1,0 +1,43 @@
+# Sesiones 7 y 13.
+#   docker compose up --build                     → API en http://localhost:8000
+#   docker compose --profile https up --build     → además Caddy: https://localhost
+services:
+  api:
+    build: .
+    ports: ["127.0.0.1:8000:8000"]
+    env_file: .env
+    environment:
+      # En Mac, Ollama debe correr NATIVO (app de Ollama) para usar la GPU (Metal).
+      # Docker en macOS no tiene acceso a la GPU: dentro de un contenedor iría solo por CPU.
+      OLLAMA_URL: http://host.docker.internal:11434/v1
+    extra_hosts: ["host.docker.internal:host-gateway"] # Linux: llegar al Ollama del equipo
+    # Sesión 7: lo mínimo que la aplicación necesita, nada más
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 1g
+    restart: unless-stopped
+
+  caddy: # sesión 13: HTTPS delante de la API
+    profiles: ["https"]
+    image: caddy:2.11.6
+    depends_on: [api]
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMINIO: ${DOMINIO:-localhost}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    restart: unless-stopped
+
+  # Solo para Linux con GPU NVIDIA o servidores:  docker compose --profile ollama up
+  ollama:
+    profiles: ["ollama"]
+    image: ollama/ollama:0.35.0 # versión fija, nunca latest
+    ports: ["127.0.0.1:11434:11434"]
+    volumes: [ollama:/root/.ollama]
+
+volumes:
+  caddy_data:
+  ollama:

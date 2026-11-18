@@ -1,5 +1,87 @@
 # Instalación
 
+## Antes del lunes 23 de noviembre: Ollama en 5 pasos
+
+Las tres últimas clases usan un modelo de IA que corre en su propio equipo, gratis y sin enviar
+datos a nadie. Hágalo en casa: la descarga de los modelos tarda (de 3 a 10 GB) y en clase no hay
+tiempo. Toma unos 30 minutos, casi todos esperando la descarga.
+
+Si prefiere ir paso a paso, con lo que debe ver en cada comando y qué hacer si algo falla, use
+el manual en PDF para Windows, macOS y Linux: [`Instalar-IA-del-curso.pdf`](Instalar-IA-del-curso.pdf).
+Incluye también Tesseract, que se usa en la clase 3.
+
+**1. Vea cuánta memoria tiene su equipo.**
+
+| Sistema | Cómo verla |
+|---|---|
+| macOS | Menú Apple → Acerca de esta Mac → "Memoria" |
+| Windows | `Ctrl+Shift+Esc` → Rendimiento → Memoria (el total, arriba a la derecha) |
+| Linux | `free -h` → columna `total` de la fila `Mem` |
+
+**2. Instale Ollama** y déjelo abierto.
+
+- macOS: descargue la app de <https://ollama.com/download> (o `brew install --cask ollama`) y ábrala
+  una vez: queda un ícono de llama en la barra de arriba.
+- Windows: `winget install --id Ollama.Ollama` (o el instalador de <https://ollama.com/download>).
+  Queda corriendo junto al reloj.
+- Linux: `curl -fsSL https://ollama.com/install.sh | sh`.
+
+Compruebe en una terminal nueva: `ollama --version`.
+
+**3. Descargue dos modelos, según su memoria.** El de embeddings es el mismo para todos.
+
+| Memoria | Comandos |
+|---|---|
+| 8 GB | `ollama pull qwen3:1.7b` y `ollama pull qwen3-embedding:0.6b` |
+| 16 GB | `ollama pull qwen3:4b-instruct` y `ollama pull qwen3-embedding:0.6b` |
+| 24 GB o más | `ollama pull qwen3:14b` y `ollama pull qwen3-embedding:0.6b` |
+
+Pruebe el de chat: `ollama run qwen3:4b-instruct "Hola, responde en una frase"` (con el nombre del
+suyo). Para salir de `ollama run`, `/bye`.
+
+**4. Configure el proyecto.** En la raíz de su repositorio del curso, después de traer `s07-c1.2`:
+
+```bash
+uv sync --extra llm --extra docs   # instala los clientes de los modelos y de documentos
+cp .env.example .env               # Windows (PowerShell): copy .env.example .env
+```
+
+Desde ahora, cada vez que sincronice, use `uv sync --extra llm --extra docs`: un `uv sync` solo
+desinstala esos paquetes.
+
+Abra `.env` y cambie solo dos líneas, con el modelo que descargó:
+
+```bash
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=qwen3:4b-instruct
+```
+
+**5. Verifique.**
+
+```bash
+uv run --env-file .env python scripts/verificar_ia.py
+```
+
+Debe terminar con `Todo listo para las clases de IA.` Si algo falla, el script dice qué hacer.
+Mande una captura de esa salida al chat del curso.
+
+| Si ve | Qué hacer |
+|---|---|
+| `✗ No responde en http://localhost:11434/v1` | Ollama no está abierto: ábralo (Linux: `ollama serve`) |
+| `✗ Falta qwen3:…` | El `ollama pull` no terminó, o el nombre del `.env` no coincide con `ollama list` |
+| `✗ OLLAMA_MODEL está vacío` | Faltó el `.env` o el `--env-file .env` |
+| `✗ Falta el paquete openai` | `uv sync --extra llm --extra docs` |
+| `ollama: command not found` | Cierre y vuelva a abrir la terminal; en Windows, reinicie la sesión |
+| El chat tarda más de un minuto cada vez | El modelo es grande para su memoria: use el de la fila de arriba en la tabla del paso 3, y cierre el navegador y Docker mientras prueba |
+
+¿Sin equipo para modelos locales? El curso funciona con `LLM_PROVIDER=fake`: todas las pruebas
+pasan; solo no verá respuestas reales. Y quien tenga llave de un proveedor comercial puede usarla
+(ver al final).
+
+El resto de esta guía es la referencia completa, con lo que se usa en todo el curso.
+
+---
+
 El curso funciona completo **sin ningún modelo de IA**: el proyecto trae un proveedor falso
 (`FakeLLM`) y embeddings que no necesitan red. Los modelos locales y las llaves comerciales se
 usan para probar con IA de verdad, a partir de la sesión 6. Instale cada cosa antes de la sesión

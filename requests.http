@@ -1,0 +1,54 @@
+### Sesiones 6, 7, 11 y 13: probar la API desde VS Code (extensión REST Client)
+# @name login
+POST http://localhost:8000/v1/token
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=admin123
+
+###
+@token = {{login.response.body.access_token}}
+
+# @name cargar
+POST http://localhost:8000/v1/documents
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"title": "vacaciones", "content": "Los empleados tienen derecho a 15 días hábiles de vacaciones por año."}
+
+### Sesión 6: consultar un documento (404 si no existe)
+GET http://localhost:8000/v1/documents/{{cargar.response.body.id}}
+Authorization: Bearer {{token}}
+
+### Sesión 13: un documento que solo ve el grupo rrhh
+POST http://localhost:8000/v1/documents
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"title": "salarios", "content": "Escala salarial del comité directivo.", "groups": ["rrhh"]}
+
+### Sesión 11: cargar un archivo (PDF, PNG, JPG o texto)
+POST http://localhost:8000/v1/documents/archivo
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=limite
+
+--limite
+Content-Disposition: form-data; name="archivo"; filename="politica.md"
+Content-Type: text/markdown
+
+Las vacaciones se solicitan con 30 días de anticipación.
+--limite--
+
+### Preguntar
+# @name pregunta
+POST http://localhost:8000/v1/ask
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"question": "¿Cuántos días de vacaciones tengo?"}
+
+### Seguir la misma conversación
+POST http://localhost:8000/v1/ask
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"question": "¿Y con cuánta anticipación las pido?", "conversation_id": "{{pregunta.response.body.conversation_id}}"}
