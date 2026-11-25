@@ -39,7 +39,18 @@ def limitador(maximo: int) -> Callable[[int], bool]:
     True y descuenta si caben en el presupuesto restante; False y no descuenta si no caben.
     Lanza ValueError si tokens es negativo. Cada limitador es independiente.
     """
-    raise NotImplementedError
+    presupuesto = maximo
+
+    def consumir(tokens: int) -> bool:
+        nonlocal presupuesto
+        if tokens < 0:
+            raise ValueError("tokens no puede ser negativo")
+        if tokens > presupuesto:
+            return False
+        presupuesto -= tokens
+        return True
+
+    return consumir
 
 
 # 5. Firma explícita y lista de permitidos (código seguro) -------------------
@@ -50,4 +61,21 @@ def construir_consulta(texto: str, /, *, limite: int = 5, **filtros: str) -> dic
     Solo se aceptan filtros de FILTROS_PERMITIDOS; cualquier otro → ValueError
     (nunca se pasan claves desconocidas a la capa de datos).
     """
-    raise NotImplementedError
+    if not 1 <= limite <= 50:  # es mejor usar not 1 <= limite <= 50 que limite < 1 or limite > 50
+        raise ValueError("limite debe estar entre 1 y 50")
+
+    texto = (
+        texto.strip()
+    )  # esta variable texto es una nueva variable, no es la misma que la pasada como argumento
+    # es mejor limpiar la variable antes de usuarla
+    # los string en python son inmutables, por lo que no se puede modificar
+    # se debe crear una nueva variable
+
+    if not texto:  # es mejor usar not texto que texto == ""
+        raise ValueError("texto no puede ser vacío")
+
+    filtros_no_permitidos = filtros.keys() - FILTROS_PERMITIDOS
+    if filtros_no_permitidos:
+        raise ValueError(f"filtros {filtros_no_permitidos} no son permitidos")
+
+    return {"texto": texto, "limite": limite, "filtros": filtros}

@@ -21,12 +21,13 @@ PALABRAS_VACIAS = frozenset({"de", "la", "el", "en", "y", "los", "las", "por", "
 #   - Parámetros: resultados (lista de (texto, similitud)), limite = 5 y similitud_minima = 0.3,
 #     todos con anotación de tipo, y también el tipo de retorno.
 #   - Sin variables de una letra.
-def proc(d, n=5):
-    r = []
-    for x in d:
-        if x[1] > 0.3:
-            r.append(x)
-    return r[:n]
+def fragmentos_relevantes(
+    resultados: list[tuple[str, float]], limite: int = 5, similitud_minima: float = 0.3
+) -> list[tuple[str, float]]:
+
+    relevantes = [(texto, sim) for texto, sim in resultados if sim > similitud_minima]
+
+    return relevantes[:limite]  # retorna desde el inicio : hasta el limite
 
 
 # 2. Funciones pequeñas que hacen una cosa ---------------------------------------------------
@@ -35,21 +36,31 @@ def proc(d, n=5):
 #   palabras_utiles(texto: str) -> list[str]      sin PALABRAS_VACIAS y de 3 letras o más
 #   contar(palabras: list[str]) -> dict[str, int] cuántas veces aparece cada una
 # y deje procesar como una función de tres líneas que llama a las otras tres.
+def limpiar(texto: str) -> str:
+    """Minúsculas y un solo espacio entre palabras."""
+    return " ".join(texto.lower().split())
+
+
+def palabras_utiles(texto: str) -> list[str]:
+    """Palabras de 3 letras o más que no están en PALABRAS_VACIAS."""
+    return [p for p in texto.split() if p not in PALABRAS_VACIAS and len(p) >= 3]
+
+
+def contar(palabras: list[str]) -> dict[str, int]:
+    """Cuántas veces aparece cada palabra."""
+    # return {p: palabras.count(p) for p in palabras}
+    conteo: dict[str, int] = {}
+    for palabra in palabras:
+        conteo[palabra] = conteo.get(palabra, 0) + 1
+
+    return conteo
+
+
 def procesar(texto: str) -> dict[str, int]:
-    """Limpia el texto y descarta las palabras que no aportan y cuenta las que quedan."""
-    t = texto.lower()
-    while "  " in t:
-        t = t.replace("  ", " ")
-    t = t.strip()
-    resultado: dict[str, int] = {}
-    for p in t.split(" "):
-        if p in PALABRAS_VACIAS or len(p) < 3:
-            continue
-        if p in resultado:
-            resultado[p] = resultado[p] + 1
-        else:
-            resultado[p] = 1
-    return resultado
+    """Limpia el texto, descarta las palabras que no aportan y cuenta las que quedan."""
+    texto = limpiar(texto)
+    utiles = palabras_utiles(texto)
+    return contar(utiles)
 
 
 # 4. Cada capa habla su idioma -------------------------------------------------------------

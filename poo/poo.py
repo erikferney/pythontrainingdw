@@ -168,13 +168,14 @@ def con_respaldo(principal: ProveedorLLM, respaldo: ProveedorLLM, pregunta: str)
 
 # 9. Código seguro: objetos que se defienden -----------------------------------------------------
 # Diapositiva "Código seguro: objetos que se defienden".
+@dataclass(frozen=True)
 class ConfigProveedor:
-    """Dataclass inmutable con tres campos, en este orden:
-        modelo: str
-        api_key: str          que NO aparezca en repr() (los repr terminan en los logs)
-        temperatura: float = 0.2
+    modelo: str
+    api_key: str = field(repr=False)  # repr=False significa que esta oculto
+    temperatura: float = 0.2
 
-    Valide en __post_init__, con if y raise (no con assert):
-        - api_key vacía          → ValueError
-        - temperatura fuera de 0..2 → ValueError
-    """
+    def __post_init__(self):
+        if self.api_key.strip():
+            raise ValueError("La Api Key no puede ser vacia")
+        if not 0 <= self.temperatura <= 2:
+            raise ValueError("Temperatura fuera de rango, 0 y 2")

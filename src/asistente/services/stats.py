@@ -6,7 +6,6 @@ Este archivo tiene problemas que no se ven a simple vista. Encuéntrelos con las
 
 from __future__ import annotations
 
-import json
 from collections import Counter
 from collections.abc import Sequence
 

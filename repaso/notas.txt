@@ -1,0 +1,40 @@
+clave para presentaciones: pyia-n9yhyc5p
+
+
+uv run python                               #ejecuta directamente el python del ambiente, sin activar el ambiente
+uv run python                               #consola interactiva; exit() para salir
+uv run python archivo.python                #ejecutar un archivo python.py
+uv run python -c "print('Hola mundo!')"     #puedo ejecutar una línea de código
+uv run python -m pytest                     #ejecutar un módulo como programa
+uv run pytest                               #lo mismo, con el comando del paquete
+uv run python -c 'from poo.objval import Fragmento;
+Fragmento("hola mundo", 0, None)'
+
+
+el código debe estar identado en python
+
+def clasificar(n: int) -> str:
+    if n < 0:
+        return "negativo"
+    elif n == 0:
+        return "cero"
+    else:
+        return "positivo"
+
+def palabras_utiles(texto: str) -> list[str]:
+    """Palabras de 3 letras o más que no están en PALABRAS_VACIAS."""
+    return [p for p in texto.split() if p not in PALABRAS_VACIAS and len(p) >= 3]  #crea una lista por comprensión
+
+diccionario en funcion
+
+def contar(palabras: list[str]) -> dict[str, int]:
+    """Cuántas veces aparece cada palabra."""
+    #return {p: palabras.count(p) for p in palabras}
+    conteo: dict[str, int] = {}
+    for palabra in palabras:
+        conteo[palabra] = conteo.get(palabra, 0) + 1
+
+
+uv run ruff check   ##valida errores o problemas de código
+uv run ruff check --fix     #repara los errores encontrados y marcados con * anterior comando
+uv run ruff check   ##la idea es que luego de corregido todo, esto funcione
